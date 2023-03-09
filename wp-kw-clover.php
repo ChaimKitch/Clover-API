@@ -80,36 +80,48 @@ class WP_KW_Clover_Plugin {
 	}
 
     public function kw_add_settings_page(){
-        add_options_page( 'Clover Settings', 'Clover Settings', 'manage_options', 'kw_clover-settings', [$this, 'kw_clover_render_plugin_settings_page'] );
+        add_options_page( 'Clover Settings', 'Clover Settings', 'manage_options', 'kw_clover_settings', [$this, 'kw_clover_render_plugin_settings_page'] );
     }
 
     public function kw_clover_render_plugin_settings_page(){
+        if ( !current_user_can( "manage_options" ) )  {
+            wp_die( __( "You do not have sufficient permissions to access this page." ) );
+        }
+    
+        if ( isset($_GET['status']) && $_GET['status']=='success') { 
         ?>
-        
-        <h2>Clover Settings</h2>
-        <form action="options.php" method="post">
+            <div id="message" class="updated notice is-dismissible">
+                <p><?php _e("Settings updated!", "wp-kw-clover"); ?></p>
+                <button type="button" class="notice-dismiss">
+                    <span class="screen-reader-text"><?php _e("Dismiss this notice.", "wp-kw-clover"); ?></span>
+                </button>
+            </div>
+        <?php
+        }
+        ?>
+        <form action="<?php echo admin_url( 'options.php'); ?>" method="post">
         
             <?php 
             
                 settings_fields( 'kw_clover_plugin_options' );
                 do_settings_sections( 'kw_clover_plugin' ); 
+                submit_button();
+            ?>          
             
-            ?>
-
-            <input name="submit" class="button button-primary" type="submit" value="<?php esc_attr_e( 'Save' ); ?>" />
-        
         </form>
-        
         <?php
     }
 
     public function kw_register_settings() {
 
-        register_setting( 'kw_clover_plugin_options', 'kw_clover_plugin_options', [$this, 'kw_clover_plugin_options_validate'] );
-        add_settings_section( 'kw_clover_plugin_setting', 'Redirect Settings', [$this,'kw_clover_plugin_section_text'], 'kw_clover_plugin' );
-    
-        add_settings_field( 'kw_clover_plugin_setting_url', 'Redirect Url', [$this, 'kw_clover_plugin_setting_url'], 'kw_clover_plugin', 'kw_clover_redirect_settings' );
-        add_settings_field( 'kw_clover_plugin_setting_entrypoint_page', 'Entrypoint to Redirect', [$this, 'kw_clover_plugin_setting_entrypoint_page'], 'kw_clover_plugin', 'kw_clover_redirect_settings' );
+        register_setting( 'kw_clover_plugin_options', 'kw_clover_plugin_options');
+        add_settings_section( 'kw_clover_plugin_setting',  __( 'Clover Settings', 'kw-clover' ), [$this,'kw_clover_plugin_section_text'], 'kw_clover_plugin' );
+
+        add_settings_field( 'kw_clover_plugin_setting_id_merchant', __( 'ID Merchant', 'kw-clover' ), [$this, 'kw_clover_plugin_setting_id_merchant'], 'kw_clover_plugin', 'kw_clover_plugin_setting' );
+        add_settings_field( 'kw_clover_plugin_setting_api_token', __( 'API Token', 'kw-clover' ), [$this, 'kw_clover_plugin_setting_api_token'], 'kw_clover_plugin', 'kw_clover_plugin_setting' );
+        add_settings_field( 'kw_clover_plugin_setting_api_secret', __( 'API Secret', 'kw-clover' ), [$this, 'kw_clover_plugin_setting_api_secret'], 'kw_clover_plugin', 'kw_clover_plugin_setting' );
+        add_settings_field( 'kw_clover_plugin_setting_endpoint_url', __( 'Endpoint URL', 'kw-clover' ), [$this, 'kw_clover_plugin_setting_endpoint_url'], 'kw_clover_plugin', 'kw_clover_plugin_setting' );
+
     
     }
 
@@ -124,13 +136,25 @@ class WP_KW_Clover_Plugin {
 
 
     function kw_clover_plugin_section_text() {
-        echo '<p>Here you can set all the options for using the Redirects</p>';
+        echo '<p>Here you can set all the options for connect Clover API</p>';
     }
     
     function kw_clover_plugin_setting_url() {
         $options = get_option( 'kw_clover_plugin_options' );
         $url = (isset($options['url'])) ? $options['url'] : '';
         echo "<input id='kw_clover_plugin_options_url' name='kw_clover_plugin_options[url]' type='text' value='" . esc_attr( $url ) . "' />";
+    }
+    function kw_clover_plugin_setting_id_merchant(){
+        ?> <input type="text" id="kw_clover_plugin_options_id_merchant" name="kw_clover_plugin_options[id_merchant]" value="<?php echo get_option( "kw_clover_plugin_options" )['id_merchant'] ?? '' ?>"> <?php
+    }
+    function kw_clover_plugin_setting_api_token(){
+        ?> <input type="text" id="kw_clover_plugin_options_api_token" name="kw_clover_plugin_options[api_token]" value="<?php echo get_option( "kw_clover_plugin_options" )['api_token'] ?? '' ?>"> <?php
+    }
+    function kw_clover_plugin_setting_api_secret(){
+        ?> <input type="text" id="kw_clover_plugin_options_api_secret" name="kw_clover_plugin_options[api_secret]" value="<?php echo get_option( "kw_clover_plugin_options" )['api_secret'] ?? '' ?>"> <?php
+    }
+    function kw_clover_plugin_setting_endpoint_url(){
+        ?> <input type="text" id="kw_clover_plugin_options_endpoint_url" name="kw_clover_plugin_options[endpoint_url]" value="<?php echo get_option("kw_clover_plugin_options" )['endpoint_url'] ?? '' ?>"> <?php
     }
 
     function kw_clover_plugin_setting_entrypoint_page() {
