@@ -1,6 +1,6 @@
 <?php
 
-namespace WC_Kwac_Clover;
+namespace WC_Kwac;
 
 if ( ! defined( 'WPINC' ) || ! defined( 'ABSPATH' ) ) {
     die;
@@ -14,8 +14,16 @@ class Base {
         $this->plugin = $plugin;
     }
 
-    public function plugin(){
-        return $this->plugin;
+    public function api(){
+        return $this->plugin->api;
+    }
+
+    public function settings(){
+        return $this->plugin->settings;
+    }
+
+    public function helper(){
+        return $this->plugin->helper;
     }
 
 }

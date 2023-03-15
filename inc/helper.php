@@ -1,6 +1,6 @@
 <?php
 
-namespace WC_Kwac_Clover;
+namespace WC_Kwac;
 
 if ( ! defined( 'WPINC' ) || ! defined( 'ABSPATH' ) ) {
     die;

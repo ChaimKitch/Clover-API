@@ -10,10 +10,10 @@
  * Text Domain: wc-kwac-clover
  * Domain Path: /languages
  *
- * @package WC_Kwac_Clover
+ * @package WC_Kwac
  */
 
-namespace WC_Kwac_Clover;
+namespace WC_Kwac;
 
 if ( ! defined( 'WPINC' ) || ! defined( 'ABSPATH' ) ) {
     die;
@@ -22,14 +22,12 @@ if ( ! defined( 'WPINC' ) || ! defined( 'ABSPATH' ) ) {
 require_once( 'inc/base.php' );
 require_once( 'inc/helper.php' );
 require_once( 'inc/settings.php' );
-require_once( 'inc/clover-api.php' );
+require_once( 'inc/api.php' );
+require_once( 'inc/actions.php' );
+require_once( 'inc/admin.php' );
+require_once( 'inc/products.php' );
 
-/**
- * Main plugin class.
- *
- * @package WC_Custom_Extension
- */
-class WC_Kwac_Clover {
+class Plugin {
 
     /**
      * The minimum PHP version required for the plugin.
@@ -49,7 +47,7 @@ class WC_Kwac_Clover {
 	 * @access private
 	 * @static
 	 *
-	 * @var WC_Kwac_Clover The single instance of the class.
+	 * @var Plugin The single instance of the class.
 	 */
 	private static $_instance = null;
 
@@ -63,7 +61,7 @@ class WC_Kwac_Clover {
 	 * @access public
 	 * @static
 	 *
-	 * @return WC_Kwac_Clover An instance of the class.
+	 * @return Plugin An instance of the class.
 	 */
 	public static function instance() {
 
@@ -77,23 +75,44 @@ class WC_Kwac_Clover {
     /**
      * Instance of the Helper class.
      *
-     * @var WC_Kwac_Clover\Helper
+     * @var WC_Kwac\Helper
      */
     public $helper;
 
     /**
      * Instance of the Settings class.
      *
-     * @var WC_Kwac_Clover\Settings
+     * @var WC_Kwac\Settings
      */
     public $settings;
 
     /**
-     * Instance of the Settings class.
+     * Instance of the Api class.
      *
-     * @var WC_Kwac_Clover\Clover_Api
+     * @var WC_Kwac\Actions
      */
-    public $clover_api;
+    public $actions;
+
+    /**
+     * Instance of the Api class.
+     *
+     * @var WC_Kwac\Api
+     */
+    public $api;
+
+    /**
+     * Instance of the Admin class.
+     *
+     * @var WC_Kwac\Admin
+     */
+    public $admin;
+
+    /**
+     * Instance of the Products class.
+     *
+     * @var WC_Kwac\Products
+     */
+    public $products;
 
     protected $requirements_errors;
 
@@ -101,23 +120,29 @@ class WC_Kwac_Clover {
      * Constructor.
      */
     public function __construct() {
+        add_action( 'plugins_loaded', [$this, 'loaded'] );
+    }
 
-        register_activation_hook( __FILE__, [$this, 'activation'] );
-
+    public function loaded(){
+        
         if( $this->check_requirements() ){
 
+            register_activation_hook( __FILE__, [$this, 'activation'] );
             add_action( 'init', [ $this, 'initialize_plugin' ] );
 
             $this->helper = new Helper( $this );
             $this->settings = new Settings( $this );
-            $this->clover_api = new CloverApi( $this );
+            $this->actions = new Actions( $this );
+            $this->api = new Api( $this );
+            $this->admin = new Admin( $this );
+            $this->products = new Products( $this );
+
 
         }else{
 
             add_action( 'admin_notices', [ $this, 'show_requirements' ] );
 
         }
-
     }
 
     /**
@@ -183,25 +208,6 @@ class WC_Kwac_Clover {
         
     }
 
-    public function CloverApi(){
-        return $this->clover_api;
-    }
-
-    public function Settings(){
-        return $this->settings;
-    }
-
-    public function Helper(){
-        return $this->helper;
-    }
-
 }
 
-/*function my_extension_init(){
-    //$WC_KWAC_CLOVER = WC_Kwac_Clover::instance();
-}
-
-add_action( 'plugins_loaded', 'my_extension_init' );
-*/
-
-
+$WC_KWAC_CLOVER = Plugin::instance();
