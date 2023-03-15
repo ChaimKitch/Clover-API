@@ -89,19 +89,13 @@ class Api extends Base{
 
     protected function request_access_token(){
 
-        $this->helper()->log("REQUEST ACCESS TOKEN");
-        
         $url = $this->settings()->auth_base_url . 'oauth/token';
-
-        $this->helper()->log($url);
         
         $data = [
             'client_id'     => $this->settings()->app_id,
             'client_secret' => $this->settings()->app_secret,
             'code'          => $this->settings()->auth_code
         ];
-
-        $this->helper()->log($data);
 
         $response = $this->call('GET', $url, $data);
 
@@ -110,23 +104,17 @@ class Api extends Base{
             if($access_token){
                 $this->settings()->set('access_token',$access_token);
             }
-            $this->helper()->log($access_token);
             return $access_token;
         }else{
-            $this->helper()->log("REQUEST ACCESS ERROR");
-
             $this->settings()->set('access_token',null);
             $this->settings()->set('auth_code',null);
 
-            $this->helper()->log($response);
             return false;
         }
 
     }
 
     public function merchant(){
-        $this->helper()->log("MERCHANT");
-        $this->helper()->log($this->settings());
 
         if( !$this->helper()->is_null_or_empty($this->settings()->access_token) ){
 
@@ -136,12 +124,8 @@ class Api extends Base{
                 'accept' => 'application/json',
                 'authorization' => 'Bearer ' . $this->settings()->access_token
             ];
-
-            $this->helper()->log("MERCHANT RESPONSE");
-            $this->helper()->log($data);
             
             $merchant_response = $this->call('GET', $url, null, $data);
-            $this->helper()->log($merchant_response);
             
             if(!is_wp_error($merchant_response)){
                 return $merchant_response;
