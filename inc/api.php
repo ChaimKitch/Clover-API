@@ -116,9 +116,15 @@ class Api extends Base{
 
     public function merchant(){
 
+        $this->helper()->log("Merchant");
+
         if( !$this->helper()->is_null_or_empty($this->settings()->access_token) ){
 
-            $url = $url = $this->settings()->api_base_url . 'merchants/' . $this->settings()->merchant_id;
+            $this->helper()->log("Has Access Token");
+            $this->helper()->log($this->settings()->access_token);
+
+            $url = $this->settings()->api_base_url . 'merchants/' . $this->settings()->merchant_id;
+            $this->helper()->log("URL " . $url);
             
             $data = [
                 'accept' => 'application/json',
@@ -126,7 +132,9 @@ class Api extends Base{
             ];
             
             $merchant_response = $this->call('GET', $url, null, $data);
-            
+
+            $this->helper()->log($merchant_response);
+
             if(!is_wp_error($merchant_response)){
                 return $merchant_response;
             }
